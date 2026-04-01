@@ -1,0 +1,16 @@
+.vscode/launch.json
+.vscode/settings.json
+
+lib/env_config.dart
+lib/config.dart
+
+*.env
+.env*
+
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/

@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Junction Safari (8080)",
+        "request": "launch",
+        "type": "dart",
+        "args": [
+          "-d", "safari",
+          "--web-port", "8080",
+          "--web-renderer", "html",
+          "--dart-define", "SUPABASE_URL=https://kiqcfijttxuxbdoomslw.supabase.co",
+          "--dart-define", "SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpcWNmaWp0dHh1eGJkb29tc2x3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDQwODIsImV4cCI6MjA5MDU4MDA4Mn0.-cTQZO8ymU3wOvLKXF6PGzV4UeJ4sU9WBdA24uGqGtc"
+        ]
+      }
+    ]
+  }
