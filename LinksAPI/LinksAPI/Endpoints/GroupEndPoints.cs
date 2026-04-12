@@ -7,7 +7,8 @@ namespace LinksAPI.Endpoints;
 public static class GroupEndPoints
 {
     public static void MapGroupEndPoints(this WebApplication app)
-    {
+    {   
+        // Get all groups for a specific user
         app.MapGet("/groups/{userId}", async (int userId, LinksDbContext db) =>
         {
             var user = await db.Users.FindAsync(userId);
@@ -20,6 +21,7 @@ public static class GroupEndPoints
             return Results.Ok(group);
         });
 
+        // Get all groups for a specific event
         app.MapGet("/groups/event/{eventId}", async (int eventId, LinksDbContext db) =>
         {
             var evnt = await db.Events.FindAsync(eventId);
@@ -32,6 +34,7 @@ public static class GroupEndPoints
             return Results.Ok(groups);
         });
 
+        // Create a new group for an event (the creator is automatically added as a member of the group)
         app.MapPost("/groups", async (Group group, LinksDbContext db) =>
         {
             db.Groups.Add(group);
@@ -48,6 +51,7 @@ public static class GroupEndPoints
             return Results.Created($"/groups/{group.Id}", group);
         });
 
+        // Join a group
         app.MapPost("/groups/{groupId}/join", async (int groupId, int userId, LinksDbContext db) =>
         {
             var group = await db.Groups.FindAsync(groupId);
@@ -74,6 +78,7 @@ public static class GroupEndPoints
             return Results.Ok();
         });
 
+        // Leave a group
         app.MapDelete("/groups/{groupId}/leave", async (int groupId, int userId, LinksDbContext db) =>
         {
             var member = await db.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
@@ -88,6 +93,7 @@ public static class GroupEndPoints
             return Results.Ok();
         });
 
+        // Delete a group (only the creator can delete the group, and only if the event is not starting within 24 hours)
         app.MapDelete("/groups/{groupId}", async (int groupId, int userId, LinksDbContext db) =>
         {
             var group = await db.Groups.FindAsync(groupId);

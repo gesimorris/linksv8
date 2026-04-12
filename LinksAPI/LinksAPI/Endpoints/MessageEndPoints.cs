@@ -7,7 +7,8 @@ namespace LinksAPI.Endpoints;
 public static class MessageEndPoints
 {
     public static void MapMessageEndPoints(this WebApplication app)
-    {
+    {   
+        // Get all messages for a specific group
         app.MapGet("/messages/{groupId}", async (int groupId, int userId, LinksDbContext db) =>
         {
             var isMember = await db.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
@@ -18,7 +19,8 @@ public static class MessageEndPoints
             var messages = await db.Messages.Where(m => m.GroupId == groupId).ToListAsync();
             return Results.Ok(messages);
         });
-
+        
+        // Create a new message in a group
         app.MapPost("/messages", async (Message message, LinksDbContext db) =>
         {
             db.Messages.Add(message);
@@ -26,6 +28,7 @@ public static class MessageEndPoints
             return Results.Created($"/messages/{message.Id}", message);
         });
 
+        // Delete a message (only the creator of the message can delete it)
         app.MapDelete("/messages/{id}", async (int id, int userId, LinksDbContext db) =>
         {
             var message = await db.Messages.FindAsync(id);
@@ -43,6 +46,7 @@ public static class MessageEndPoints
             return Results.NoContent();
         });
 
+        // Update a message (only the creator of the message can update it)
         app.MapPut("/messages/{id}", async (int id, Message updatedMessage, int userId, LinksDbContext db) =>
         {
             var message = await db.Messages.FindAsync(id);
