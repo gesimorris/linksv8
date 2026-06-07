@@ -1,4 +1,4 @@
-
+// Program.cs
 using LinksAPI.Data;
 using LinksAPI.Endpoints;
 using Microsoft.EntityFrameworkCore;
