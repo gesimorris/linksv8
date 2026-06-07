@@ -5,7 +5,7 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'jwt_token';
 
-  static const String baseUrl = "http://localhost:5047"; 
+  static const String baseUrl = "https://linksv8.onrender.com"; 
   static final Dio _dio = Dio();
 
   // SIGN UP
@@ -36,7 +36,6 @@ class AuthService {
         final token = response.data['token'];
         final userId = response.data['userId'];
         
-        // Use your existing storage logic
         await _storage.write(key: _tokenKey, value: token);
         await _storage.write(key: 'user_id', value: userId.toString());
         await _storage.write(key: 'first_name', value: response.data['firstName']);

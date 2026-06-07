@@ -7,6 +7,10 @@ class ApiService {
     receiveTimeout: Duration(seconds: 3),
   ));
 
+  // CORS
+ApiService() {
+  _dio.options.baseUrl = 'https://linksv8.onrender.com';
+}
   // USER METHODS
 
   Future<Response> login(String email, String password) async {

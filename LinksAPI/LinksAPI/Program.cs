@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFlutter",
-        policy => policy.WithOrigins("https://linksapp-two.vercel.app/")
+        policy => policy.WithOrigins("https://linksapp-two.vercel.app")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .SetPreflightMaxAge(TimeSpan.FromMinutes(10)));

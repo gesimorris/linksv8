@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-// 1. SEARCH QUERY PROVIDER
-// This stores the string the user types into the search bar.
+
 final searchQueryProvider = StateProvider<String>((ref) => "");
 
 final filteredEventsProvider = Provider<List<Map<String, dynamic>>>((ref) {
   final query = ref.watch(searchQueryProvider).toLowerCase();
-
+  // Sample Data
   final allGroups = [
     {
       'id': '1',
