@@ -1,7 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'home_screen.dart'; // To access bottomNav
+import 'package:go_router/go_router.dart';
+import 'home_screen.dart'; // For bottomNav
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -11,111 +13,205 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  // Kamloops Coordinates
   final LatLng _kamloopsCenter = const LatLng(50.6745, -120.3273);
   
-  static const Color kPrimary = Color(0xFFFF5C4D);
+  static const Color kPrimary = Color(0xFFFF5C4D);   // Coral/Red for LIVE
+  static const Color kSecondary = Color(0xFF00D2FF); // Blue for VENUES
   static const Color kDark = Color(0xFF1A1A1A);
+  static const Color kBackground = Color(0xFFFDFCF9);
+
+  // Hybrid Data: Venues (Permanent) and Groups (Live)
+  final List<Map<String, dynamic>> _mapPoints = [
+    {
+      'type': 'venue',
+      'name': 'EXIT Kamloops',
+      'pos': const LatLng(50.6750, -120.3320),
+      'icon': Icons.vpn_key,
+      'color': kSecondary,
+      'desc': 'Escape rooms for all skill levels. Great for groups of 4-6.',
+    },
+    {
+      'type': 'live',
+      'hostName': 'Marcus',
+      'hostRating': 4.9,
+      'title': 'Skate Session @ McArthur',
+      'pos': const LatLng(50.6890, -120.3600),
+      'icon': Icons.skateboarding,
+      'color': kPrimary,
+      'spots': '3 spots left',
+    },
+    {
+      'type': 'venue',
+      'name': 'The Blue Grotto',
+      'pos': const LatLng(50.6740, -120.3280),
+      'icon': Icons.music_note,
+      'color': Colors.purpleAccent,
+      'desc': 'Live music home. 21+ on weekends, all ages for special shows.',
+    },
+    {
+      'type': 'live',
+      'hostName': 'Sarah',
+      'hostRating': 4.7,
+      'title': 'Board Games at The Den',
+      'pos': const LatLng(50.6690, -120.3650),
+      'icon': Icons.casino,
+      'color': kPrimary,
+      'spots': '2 people needed',
+    },
+  ];
+
+  // --- UNIFIED MODAL LOGIC ---
+  void _showDetailModal(Map<String, dynamic> point) {
+    bool isLive = point['type'] == 'live';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsets.all(30),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      isLive ? point['title'] : point['name'],
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: kDark),
+                    ),
+                  ),
+                  Icon(point['icon'], color: point['color'], size: 28),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (isLive) ...[
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.orange, size: 16),
+                    Text(" ${point['hostRating']} reliability · Hosted by ${point['hostName']}", 
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black38, fontSize: 13)),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Text(point['spots'], style: const TextStyle(color: kPrimary, fontWeight: FontWeight.w900)),
+              ] else ...[
+                Text(point['desc'], style: const TextStyle(color: Colors.black54, height: 1.4)),
+              ],
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isLive ? kPrimary : kDark,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                  child: Text(isLive ? "I'm Down!" : "See Groups Here", 
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- LONG PRESS TO PLAN ---
+  void _handleLongPress(LatLng point) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text("Plan something at this coordinate?"),
+        backgroundColor: kDark,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: "YES", 
+          textColor: kPrimary,
+          onPressed: () => print("Navigating to create with: $point"),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // THE REAL MAP
-          FlutterMap(
-            options: MapOptions(
-              initialCenter: _kamloopsCenter,
-              initialZoom: 13.0,
-              interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.links.app',
-                // To get the "Cream" look, you can use MapBox styles or a ColorFiltered widget
+          ColorFiltered(
+            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.04), BlendMode.saturation),
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: _kamloopsCenter,
+                initialZoom: 14.0,
+                onLongPress: (tapPos, point) => _handleLongPress(point),
               ),
-              MarkerLayer(
-                markers: [
-                  _buildBusinessMarker(
-                    point: const LatLng(50.6761, -120.3408), // Example: Downtown area
-                    icon: Icons.pets,
-                    color: const Color(0xFF00D2FF),
-                    label: 'Cat Cafe',
-                  ),
-                  _buildBusinessMarker(
-                    point: const LatLng(50.6720, -120.3300), 
-                    icon: Icons.palette,
-                    color: kPrimary,
-                    label: 'Art Party',
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // OVERLAY UI
-          SafeArea(
-            child: Column(
               children: [
-                _topSearchBar(),
-                _filterChips(),
+                TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
+                MarkerLayer(
+                  markers: _mapPoints.map((p) => _buildMarker(p)).toList(),
+                ),
               ],
             ),
           ),
 
-          // THE "+" ACTION BUTTON
-          Positioned(
-            bottom: 110,
-            right: 20,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                // Navigate to 'Create Group' Flow
-              },
-              backgroundColor: kDark,
-              elevation: 4,
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text("Plan Something", 
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          // TOP OVERLAY
+          SafeArea(
+            child: Column(
+              children: [
+                _searchBar(),
+                _categoryChips(),
+              ],
             ),
           ),
 
-          // NAVIGATION
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: bottomNav(context, 1), // Map is usually index 1
-          ),
+          Align(alignment: Alignment.bottomCenter, child: bottomNav(context, 1)),
         ],
       ),
     );
   }
 
-  Marker _buildBusinessMarker({required LatLng point, required IconData icon, required Color color, required String label}) {
+  Marker _buildMarker(Map<String, dynamic> p) {
+    bool isLive = p['type'] == 'live';
     return Marker(
-      point: point,
-      width: 80,
+      point: p['pos'],
+      width: 120,
       height: 80,
       child: GestureDetector(
-        onTap: () {
-          // SHOW BUSINESS DETAILS MODAL
-          _showBusinessDetails(label);
-        },
+        onTap: () => _showDetailModal(p),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
+                color: isLive ? kPrimary : Colors.white,
+                shape: BoxShape.circle,
+                border: isLive ? Border.all(color: Colors.white, width: 2) : null,
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(p['icon'], color: isLive ? Colors.white : p['color'], size: 20),
             ),
             const SizedBox(height: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(8)),
-              child: Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: kDark.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                isLive ? p['hostName'] : p['name'],
+                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
@@ -123,76 +219,37 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _showBusinessDetails(String name) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: 300,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-            const Text("Open · Closes 8:00 PM", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            const Text("ACTIVE GROUPS", style: TextStyle(fontSize: 12, color: Colors.black26, letterSpacing: 1.2)),
-            const SizedBox(height: 10),
-            ListTile(
-              leading: const CircleAvatar(child: Text("S")),
-              title: const Text("Shalom's Table"),
-              subtitle: const Text("Looking for 2 more people"),
-              trailing: ElevatedButton(onPressed: () {}, child: const Text("Join")),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _topSearchBar() {
+  Widget _searchBar() {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15)],
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20)]),
         child: const Row(
           children: [
             Icon(Icons.search, color: kPrimary, size: 20),
             SizedBox(width: 12),
-            Text("Search Kamloops spots...", style: TextStyle(color: Colors.black26, fontWeight: FontWeight.w500)),
+            Text("What are you looking for?", style: TextStyle(color: Colors.black26, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
     );
   }
 
-  Widget _filterChips() {
-    final filters = ['Cafes', 'Art', 'Nightlife', 'TRU Campus'];
+  Widget _categoryChips() {
+    final tags = ['🔥 Hot', '🛹 Skate', '🎨 Art', '🍔 Food', '🎓 TRU'];
     return SizedBox(
-      height: 35,
+      height: 38,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         scrollDirection: Axis.horizontal,
-        itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemCount: tags.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, i) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.black.withOpacity(0.05)),
-          ),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.black.withOpacity(0.05))),
           alignment: Alignment.center,
-          child: Text(filters[i], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+          child: Text(tags[i], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
         ),
       ),
     );

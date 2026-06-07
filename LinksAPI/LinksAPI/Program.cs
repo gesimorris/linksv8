@@ -8,6 +8,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFlutter",
+        policy => policy.WithOrigins("https://linksapp-two.vercel.app/")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .SetPreflightMaxAge(TimeSpan.FromMinutes(10)));
+});
+
 builder.Services.AddDbContext<LinksDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -28,6 +37,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseCors("AllowFlutter");
 app.UseAuthentication();
 app.UseAuthorization();
 

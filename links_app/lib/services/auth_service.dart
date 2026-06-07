@@ -5,7 +5,7 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'jwt_token';
 
-  static const String baseUrl = "http://localhost:5000"; 
+  static const String baseUrl = "http://localhost:5047"; 
   static final Dio _dio = Dio();
 
   // SIGN UP

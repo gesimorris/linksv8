@@ -15,16 +15,18 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/home',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) => HomeScreen(),
       routes: [
-        GoRoute(path: 'login', builder: (context, state) => const LoginScreen()),
-        GoRoute(path: 'register', builder: (context, state) => const RegisterScreen()),
+        GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+        GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
       ],
     ),
     GoRoute(path: '/map', builder: (context, state) => const MapScreen()),
     GoRoute(path: '/groups', builder: (context, state) => const GroupsScreen()),
     GoRoute(path: '/friends', builder: (context, state) => const FriendsScreen()),
     GoRoute(path: '/chat', builder: (context, state) => const ChatScreen()),
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+    GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
   ],
 );
 

@@ -1,6 +1,7 @@
 # Links
 
 Links is a platform that allows users to find local events they are interested in while facilitating organic friend groups—allowing users to connect without the friction of traditional social "cold-calling."
+
 <p align="center">
   <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
   <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" />
@@ -10,13 +11,36 @@ Links is a platform that allows users to find local events they are interested i
 
 </p>
 
-## Flutter
+## Features
 
-Originally prototyped in React Native, the project was strategically ported to Flutter to enable dotnet migrations to create the tables and use the dio package for requests.
+### Event Discovery
+- Unified feed of official events and user created hangouts
+- Smart filters by category (Art, Sports, Tech, Nightlife) and proximity
+- Semantic search powered by Postgres vector indexing
 
+### Social Validation
+- Live attendance counters showing Going, Interested, and Lurking status
+- Attendee transparency with avatar gallery
+- Lurker mode for low pressure interest signaling
+- Friend integration highlighting when connections are attending
 
-## Getting Started
+### Organizations
+- Verified profiles for local businesses and clubs
+- Partner dashboards to track engagement and convert lurkers to attendees
+- Event creation suite with posters, descriptions, and ticket links
 
-The platform is currently in active development, focusing on high-reliability infrastructure and a modular UI.
+### User Hangouts
+- Any user can create ad hoc pickup events
+- Automatic capacity limits and Full status
+- Trust scores rewarding reliable attendees
+
+## Live Demo
+
+- App: [your vercel link]
+- Demo Member: demo@test.com / password123
+- Demo Admin: admin@catloops.com / password123
+
+## Screenshots
+
 
 
