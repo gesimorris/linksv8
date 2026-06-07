@@ -36,9 +36,9 @@ Links is a platform that allows users to find local events they are interested i
 
 ## Live Demo
 
-- App: [your vercel link]
-- Demo Member: demo@test.com / password123
-- Demo Admin: admin@catloops.com / password123
+- App: 
+- Demo Member: 
+- Demo Admin: 
 
 ## Screenshots
 
