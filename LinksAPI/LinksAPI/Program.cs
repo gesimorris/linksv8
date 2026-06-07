@@ -16,9 +16,17 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader()
                         .SetPreflightMaxAge(TimeSpan.FromMinutes(10)));
 });
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (connectionString!.StartsWith("postgres://") || connectionString.StartsWith("postgresql://"))
+{
+    var uri = new Uri(connectionString);
+    connectionString = $"Host={uri.Host};Database={uri.AbsolutePath.TrimStart('/')};Username={uri.UserInfo.Split(':')[0]};Password={uri.UserInfo.Split(':')[1]}";
+}
 
 builder.Services.AddDbContext<LinksDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
