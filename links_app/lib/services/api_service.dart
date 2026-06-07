@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 class ApiService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://localhost:5047',
+    baseUrl: 'https://linksv8.onrender.com',
     connectTimeout: Duration(seconds: 5),
     receiveTimeout: Duration(seconds: 3),
   ));
